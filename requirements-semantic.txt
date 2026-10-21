@@ -1,0 +1,5 @@
+# Optional semantic similarity extension dependencies
+# Install with: pip install -r requirements-semantic.txt
+sentence-transformers>=2.2.0,<7.0.0
+torch>=2.0.0
+transformers>=4.30.0

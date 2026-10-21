@@ -1,0 +1,36 @@
+Senior Data Scientist - Analytics & Machine Learning
+
+Company: NexaTech Analytics Solutions
+Location: Remote / Hybrid
+
+About the Role:
+We are seeking an experienced and passionate Senior Data Scientist to lead the development of end-to-end predictive modeling and advanced analytics solutions. In this role, you will collaborate with cross-functional product and engineering teams to transform raw business data into actionable machine learning models and data-driven insights.
+
+Key Responsibilities:
+- Design, build, and deploy production-grade machine learning and deep learning models to solve complex business problems.
+- Perform exploratory data analysis, hypothesis testing, and rigorous statistical analysis on large-scale datasets.
+- Clean, preprocess, and engineer features using Python, Pandas, NumPy, and Scikit-learn.
+- Query and manipulate relational and NoSQL databases using SQL and PostgreSQL.
+- Conduct thorough model evaluation, validation, error analysis, and performance tuning.
+- Collaborate with software engineers to containerize models using Docker and orchestrate workflows with Kubernetes.
+- Deploy and monitor models across cloud infrastructure (AWS or GCP).
+- Develop automated data pipelines and integrate version control best practices using Git.
+- Communicate technical insights, statistical findings, and model metrics clearly to both technical and executive stakeholders.
+
+Required Skills & Qualifications:
+- Bachelor's, Master's, or Ph.D. in Computer Science, Data Science, Statistics, Mathematics, or a related quantitative field.
+- 4+ years of professional experience in data science, data analysis, and machine learning.
+- Strong proficiency in Python and statistical programming.
+- Hands-on expertise with SQL and relational databases such as PostgreSQL or MySQL.
+- Deep understanding of statistics, probability, regression, classification, clustering, and model evaluation metrics.
+- Extensive experience with data science libraries: Pandas, NumPy, Scikit-learn, and SciPy.
+- Practical experience with deep learning frameworks such as TensorFlow or PyTorch.
+- Experience with version control systems (Git) and collaborative development workflows (JIRA).
+- Proven track record of deploying applications or models using Docker and cloud platforms (AWS, GCP, or Azure).
+- Excellent written and verbal communication skills with the ability to convey complex technical concepts to non-technical business partners.
+
+Preferred Skills & Nice-to-Haves:
+- Experience with NLP (Natural Language Processing) and text analysis.
+- Experience with big data frameworks like Apache Spark or distributed databases like MongoDB or Redis.
+- Familiarity with CI/CD pipelines using Jenkins.
+- Experience building interactive dashboards and data visualizations with Plotly, Tableau, or Power BI.

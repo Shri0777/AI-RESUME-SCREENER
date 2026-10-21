@@ -1,0 +1,6 @@
+query_id,query_role,resume_id,relevance_grade,label_source,notes
+Q_DS_01,Senior Data Scientist,sample_alice_johnson.pdf,3,synthetic,High match: Python SQL ML DL AWS Docker
+Q_DS_01,Senior Data Scientist,sample_bob_smith.pdf,2,synthetic,Good match: Python SQL Pandas Scikit-learn
+Q_DS_01,Senior Data Scientist,sample_carol_davis.pdf,1,synthetic,Weak match: BI SQL Analyst lacking ML/DL
+Q_DS_01,Senior Data Scientist,sample_david_wilson.pdf,0,synthetic,Irrelevant: Backend systems Java C++ Go
+Q_DS_01,Senior Data Scientist,sample_emma_brown.pdf,0,synthetic,Irrelevant: Frontend web developer React CSS

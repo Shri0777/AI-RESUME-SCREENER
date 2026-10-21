@@ -1,0 +1,68 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Streamlit runtime & secrets
+.streamlit/secrets.toml
+
+# Generated reports & temporary candidate files (keep folder structure intact)
+reports/*.pdf
+reports/*.csv
+reports/*.xlsx
+reports/local_audit/
+reports/evaluation/
+!reports/.gitkeep
+
+# Local data caches & processed metadata (never commit extracted full-text or embeddings)
+data/cache/
+data/processed/
+*.parquet
+
+# Sensitive candidate resumes (never commit real personal resumes)
+data/resumes/*.pdf
+!data/resumes/sample_*.pdf
+!data/resumes/.gitkeep
+
+# Operating system files
+.DS_Store
+Thumbs.db
