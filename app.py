@@ -62,6 +62,16 @@ if "preferred_skills" not in st.session_state:
 if "report_save_message" not in st.session_state:
     st.session_state.report_save_message = None
 
+# Normalize results left in Streamlit session state from a previous app version/run.
+# This prevents existing session data from failing after hot reload.
+if isinstance(st.session_state.processed_df, pd.DataFrame):
+    df_copy = st.session_state.processed_df.copy()
+    if "semantic_similarity_score" not in df_copy.columns:
+        df_copy["semantic_similarity_score"] = 0.0
+    if "preferred_skills" not in df_copy.columns:
+        df_copy["preferred_skills"] = [[] for _ in range(len(df_copy))]
+    st.session_state.processed_df = df_copy
+
 
 def load_sample_jd() -> str:
     """Load sample job description text from file."""
@@ -162,13 +172,15 @@ with st.sidebar:
 
                 st.session_state.processed_df = df
                 st.session_state.parsing_records = records
-                (
-                    st.session_state.required_skills,
-                    st.session_state.preferred_skills,
-                    _,
-                ) = SkillExtractor().extract_skills_from_jd_sections(
-                    st.session_state.job_description
-                )
+                if not df.empty:
+                    st.session_state.required_skills = df.iloc[0].get("required_skills", [])
+                    st.session_state.preferred_skills = df.iloc[0].get("preferred_skills", [])
+                else:
+                    req_s, pref_s, _ = SkillExtractor().extract_skills_from_jd_sections(
+                        st.session_state.job_description
+                    )
+                    st.session_state.required_skills = req_s
+                    st.session_state.preferred_skills = pref_s
             st.success("Loaded 5 synthetic resumes & Senior Data Scientist JD!")
             st.rerun()
         else:
@@ -295,15 +307,17 @@ with tab1:
 
             st.session_state.processed_df = df
             st.session_state.parsing_records = parsed_records
-            (
-                st.session_state.required_skills,
-                st.session_state.preferred_skills,
-                _,
-            ) = SkillExtractor().extract_skills_from_jd_sections(
-                jd_text,
-                explicit_required=explicit_req,
-                explicit_preferred=explicit_pref,
-            )
+            if not df.empty:
+                st.session_state.required_skills = df.iloc[0].get("required_skills", [])
+                st.session_state.preferred_skills = df.iloc[0].get("preferred_skills", [])
+            else:
+                req_s, pref_s, _ = SkillExtractor().extract_skills_from_jd_sections(
+                    jd_text,
+                    explicit_required=explicit_req,
+                    explicit_preferred=explicit_pref,
+                )
+                st.session_state.required_skills = req_s
+                st.session_state.preferred_skills = pref_s
 
             st.success(f"Processing complete in {elapsed}s! Successfully evaluated {len(df)} candidate(s).")
 
@@ -365,12 +379,19 @@ with tab2:
         col_m4.metric("Average Final Score", f"{avg_score:.1f}%")
 
         display_df = df.copy()
-        display_df["matched_skills_str"] = display_df["matched_skills"].apply(
-            lambda s: ", ".join(s) if s else "None"
-        )
-        display_df["missing_skills_str"] = display_df["missing_skills"].apply(
-            lambda s: ", ".join(s) if s else "None"
-        )
+        if "matched_skills" in display_df.columns:
+            display_df["matched_skills_str"] = display_df["matched_skills"].apply(
+                lambda s: ", ".join(s) if s else "None"
+            )
+        else:
+            display_df["matched_skills_str"] = "None"
+
+        if "missing_skills" in display_df.columns:
+            display_df["missing_skills_str"] = display_df["missing_skills"].apply(
+                lambda s: ", ".join(s) if s else "None"
+            )
+        else:
+            display_df["missing_skills_str"] = "None"
 
         # Leaderboard table
         table_cols = [
@@ -384,6 +405,7 @@ with tab2:
             "missing_skills_str",
             "parse_status",
         ]
+        present_cols = [c for c in table_cols if c in display_df.columns]
 
         rename_map = {
             "rank": "Rank",
@@ -398,7 +420,7 @@ with tab2:
         }
 
         st.dataframe(
-            display_df[table_cols].rename(columns=rename_map),
+            display_df[present_cols].rename(columns=rename_map),
             use_container_width=True,
             hide_index=True,
         )
@@ -411,24 +433,25 @@ with tab2:
         d_col1, d_col2 = st.columns([1, 1], gap="medium")
 
         with d_col1:
-            st.markdown(f"### **{selected_row['candidate_name']}** (Rank #{selected_row['rank']})")
-            st.markdown(f"**Filename:** `{selected_row['filename']}`")
-            st.markdown(f"**Contact:** Email: `{selected_row['email']}` | Phone: `{selected_row['phone']}`")
-            st.markdown(f"**Parse Status:** `{selected_row['parse_status']}`")
-            if selected_row["warnings"] != "None":
-                st.warning(f"**Warnings:** {selected_row['warnings']}")
+            st.markdown(f"### **{selected_row.get('candidate_name', 'Unknown')}** (Rank #{selected_row.get('rank', '-')})")
+            st.markdown(f"**Filename:** `{selected_row.get('filename', 'unknown.pdf')}`")
+            st.markdown(f"**Contact:** Email: `{selected_row.get('email', 'N/A')}` | Phone: `{selected_row.get('phone', 'N/A')}`")
+            st.markdown(f"**Parse Status:** `{selected_row.get('parse_status', 'N/A')}`")
+            cand_warn_str = str(selected_row.get("warnings", "None"))
+            if cand_warn_str != "None":
+                st.warning(f"**Warnings:** {cand_warn_str}")
 
             st.markdown("#### Score Components")
             sc1, sc2, sc3, sc4 = st.columns(4)
-            sc1.metric("Final Score", f"{selected_row['final_score']:.2f}%")
-            sc2.metric("TF-IDF Score", f"{selected_row['similarity_score']:.2f}%")
-            sc3.metric("Semantic Score", f"{selected_row['semantic_similarity_score']:.2f}%")
-            sc4.metric("Skill Score", f"{selected_row['skill_match_score']:.2f}%")
+            sc1.metric("Final Score", f"{float(selected_row.get('final_score', 0.0)):.2f}%")
+            sc2.metric("TF-IDF Score", f"{float(selected_row.get('similarity_score', 0.0)):.2f}%")
+            sc3.metric("Semantic Score", f"{float(selected_row.get('semantic_similarity_score', 0.0)):.2f}%")
+            sc4.metric("Skill Score", f"{float(selected_row.get('skill_match_score', 0.0)):.2f}%")
 
         with d_col2:
             st.markdown("#### Skills Analysis")
-            matched_req = selected_row["matched_skills"]
-            missing_req = selected_row["missing_skills"]
+            matched_req = selected_row.get("matched_skills", [])
+            missing_req = selected_row.get("missing_skills", [])
             matched_pref = selected_row.get("matched_preferred_skills", [])
             missing_pref = selected_row.get("missing_preferred_skills", [])
 
@@ -445,7 +468,8 @@ with tab2:
                 st.success("All mandatory skills matched!")
 
             if matched_pref or missing_pref:
-                st.markdown(f"**🌟 Preferred Skills Coverage:** Matched: `{len(matched_pref)}` | Missing: `{len(missing_pref)}`")
+                pref_score_val = float(selected_row.get("preferred_skill_match_score", 0.0))
+                st.markdown(f"**🌟 Preferred Skills Coverage ({pref_score_val:.1f}%):** Matched: `{len(matched_pref)}` | Missing: `{len(missing_pref)}`")
                 if matched_pref:
                     st.caption(f"Matched Preferred: {', '.join(matched_pref)}")
 
@@ -464,9 +488,15 @@ with tab3:
 
         k1, k2, k3, k4 = st.columns(4)
         k1.metric("Resumes Processed", len(df))
-        k2.metric("Mean Final Score", f"{df['final_score'].mean():.2f}%")
+        mean_score = df["final_score"].mean() if "final_score" in df.columns and not df.empty else 0.0
+        k2.metric("Mean Final Score", f"{mean_score:.2f}%")
         k3.metric("Required Skills in JD", len(required_skills))
-        all_detected_skills = [s for sublist in df["detected_skills"] for s in sublist]
+        all_detected_skills = [
+            s
+            for sublist in df["detected_skills"]
+            if isinstance(sublist, (list, tuple, set))
+            for s in sublist
+        ] if "detected_skills" in df.columns else []
         k4.metric("Unique Skills Across Batch", len(set(all_detected_skills)))
 
         st.markdown("---")

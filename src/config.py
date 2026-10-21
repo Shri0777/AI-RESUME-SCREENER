@@ -48,27 +48,7 @@ ENABLE_SEMANTIC_CACHE: bool = True
 DEFAULT_BATCH_SIZE: int = 50
 MAX_RECOMMENDED_BATCH_SIZE: int = 1000
 
-# Extended DataFrame Column Specification
-ENHANCED_DATAFRAME_COLUMNS: List[str] = [
-    "rank",
-    "candidate_name",
-    "filename",
-    "email",
-    "phone",
-    "strategy_used",
-    "similarity_score",
-    "semantic_similarity_score",
-    "skill_match_score",
-    "required_skill_match_score",
-    "preferred_skill_match_score",
-    "final_score",
-    "matched_skills",
-    "missing_skills",
-    "matched_preferred_skills",
-    "missing_preferred_skills",
-    "detected_skills",
-    "required_skills",
-    "preferred_skills",
-    "parse_status",
-    "warnings",
-]
+from src.utils import DATAFRAME_COLUMNS
+
+# Extended DataFrame Column Specification (unified with canonical DATAFRAME_COLUMNS)
+ENHANCED_DATAFRAME_COLUMNS: List[str] = list(DATAFRAME_COLUMNS)

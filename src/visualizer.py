@@ -54,9 +54,17 @@ def plot_candidate_ranking(df: pd.DataFrame) -> go.Figure:
     # Sort ascending for horizontal bar chart display (highest on top)
     plot_df = df.sort_values(by="final_score", ascending=True)
 
-    names = plot_df["candidate_name"].tolist()
+    names = (
+        plot_df["candidate_name"].tolist()
+        if "candidate_name" in plot_df.columns
+        else [f"Candidate {i + 1}" for i in range(len(plot_df))]
+    )
     scores = plot_df["final_score"].tolist()
-    ranks = plot_df["rank"].tolist()
+    ranks = (
+        plot_df["rank"].tolist()
+        if "rank" in plot_df.columns
+        else list(range(1, len(plot_df) + 1))
+    )
 
     hover_text = [
         f"<b>Rank {r}: {name}</b><br>Final Score: {score:.2f}%"
@@ -109,10 +117,26 @@ def plot_score_breakdown(df: pd.DataFrame) -> go.Figure:
         return _empty_figure("No score data available for comparison.")
 
     # Sort descending by final score for consistent order
-    plot_df = df.sort_values(by="final_score", ascending=False)
-    names = plot_df["candidate_name"].tolist()
-    sim_scores = plot_df["similarity_score"].tolist()
-    skill_scores = plot_df["skill_match_score"].tolist()
+    plot_df = (
+        df.sort_values(by="final_score", ascending=False)
+        if "final_score" in df.columns
+        else df.copy()
+    )
+    names = (
+        plot_df["candidate_name"].tolist()
+        if "candidate_name" in plot_df.columns
+        else [f"Candidate {i + 1}" for i in range(len(plot_df))]
+    )
+    sim_scores = (
+        plot_df["similarity_score"].tolist()
+        if "similarity_score" in plot_df.columns
+        else [0.0] * len(plot_df)
+    )
+    skill_scores = (
+        plot_df["skill_match_score"].tolist()
+        if "skill_match_score" in plot_df.columns
+        else [0.0] * len(plot_df)
+    )
 
     fig = go.Figure()
 

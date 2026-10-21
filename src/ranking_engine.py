@@ -122,12 +122,7 @@ class RankingEngine:
             Pandas DataFrame sorted by 'final_score' descending with standard and enhanced columns.
         """
         active_strategy = strategy or self.strategy
-
-        cols_to_return = (
-            DATAFRAME_COLUMNS
-            if active_strategy == STRATEGY_BASELINE
-            else ENHANCED_DATAFRAME_COLUMNS
-        )
+        cols_to_return = DATAFRAME_COLUMNS
 
         if not candidates:
             return pd.DataFrame(columns=cols_to_return)
@@ -222,14 +217,19 @@ class RankingEngine:
 
             # Skill score calculation
             if active_strategy == STRATEGY_BASELINE or not preferred_skills:
-                # Classic baseline score policy
+                # Classic baseline score policy: final ranking skill component is purely required skills
                 skill_score, skill_warn = (
                     self.skill_extractor.calculate_skill_match_score(
                         len(matched_req), len(required_skills)
                     )
                 )
                 req_score = skill_score
-                pref_score = 0.0
+                if preferred_skills:
+                    pref_score, _ = self.skill_extractor.calculate_skill_match_score(
+                        len(matched_pref), len(preferred_skills)
+                    )
+                else:
+                    pref_score = 0.0
             else:
                 # Hierarchical score
                 (
